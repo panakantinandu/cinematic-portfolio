@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --indigo: #6366f1;
+  --cyan: #22d3ee;
+  --purple: #a855f7;
+  --pink: #f472b6;
+  --bg: #050510;
+  --bg2: #07071a;
+  --text: #ffffff;
+  --muted: #94a3b8;
+  --border: rgba(99,102,241,0.2);
+  --font-space: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Bebas Neue', cursive;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(99,102,241,0.4) transparent;
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-space);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+a, button { cursor: none; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #6366f1, #22d3ee); border-radius: 4px; }
+::selection { background: rgba(34,211,238,0.2); }
+
+/* ── NOISE ── */
+.noise::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.4;
+}
+
+/* ── GRADIENT TEXT ── */
+@keyframes grad {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.grad-text {
+  background: linear-gradient(135deg, #6366f1, #22d3ee, #a855f7, #f472b6);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: grad 6s ease infinite;
+}
+
+/* ── CURSOR ── */
+.cursor-dot  { width:8px;  height:8px;  background:#22d3ee; border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); mix-blend-mode:difference; }
+.cursor-ring { width:40px; height:40px; border:1.5px solid rgba(99,102,241,0.7); border-radius:50%; position:fixed; top:0; left:0; pointer-events:none; z-index:99998; transform:translate(-50%,-50%); transition:width .3s,height .3s,border-color .3s; }
+.cursor-ring.hovered { width:64px; height:64px; border-color:rgba(34,211,238,0.6); }
+
+/* ── SECTION TITLE (Bebas Neue huge) ── */
+.cinematic-title {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  line-height: 0.9;
+}
+
+/* ── MARQUEE ── */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 22s linear infinite; display: flex; width: max-content; }
+.marquee-track:hover { animation-play-state: paused; }
+
+/* ── VIDEO SECTION ── */
+.video-section {
+  position: relative;
+  overflow: hidden;
+}
+.video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(5,5,16,0.5) 0%, rgba(5,5,16,0.2) 50%, rgba(5,5,16,0.8) 100%);
+  z-index: 1;
+}
+
+/* ── SCROLL INDICATOR ── */
+@keyframes scroll-pulse { 0%,100%{transform:translateY(0);opacity:1} 50%{transform:translateY(8px);opacity:0.4} }
+.scroll-dot { animation: scroll-pulse 1.8s ease-in-out infinite; }
+
+/* ── GRAIN SCANLINE ── */
+.scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── GLITCH ──
+   Pseudo-elements duplicate the title text for a "glitch" flicker.
+   They stay invisible (opacity:0) except during the brief flash
+   moments, so the name reads as ONE line normally and only
+   flickers a quick double-vision split occasionally. */
+@keyframes glitch1 {
+  0%, 92%, 100% { opacity: 0; clip-path: inset(50% 0 30% 0); transform: translate(0); }
+  93% { opacity: 0.7; clip-path: inset(10% 0 60% 0); transform: translate(-3px); }
+  96% { opacity: 0.5; clip-path: inset(40% 0 20% 0); transform: translate(2px); }
+}
+@keyframes glitch2 {
+  0%, 92%, 100% { opacity: 0; clip-path: inset(20% 0 50% 0); transform: translate(0); }
+  94% { opacity: 0.6; clip-path: inset(70% 0 5% 0); transform: translate(3px); }
+  97% { opacity: 0.4; clip-path: inset(15% 0 55% 0); transform: translate(-2px); }
+}
+.glitch-wrap { position:relative; }
+.glitch-wrap::before,.glitch-wrap::after { content:attr(data-text); position:absolute; top:0; left:0; width:100%; pointer-events:none; }
+.glitch-wrap::before { color:#22d3ee; animation: glitch1 7s infinite; }
+.glitch-wrap::after  { color:#a855f7; animation: glitch2 7s infinite 0.15s; }
+
+/* ── CARD ── */
+.glass-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(99,102,241,0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+}
+
+/* ── LOADING SCREEN ── */
+.loader-bar { height: 2px; background: linear-gradient(90deg, #6366f1, #22d3ee, #a855f7); border-radius: 2px; }
+
+/* ── TIMELINE ── */
+.timeline-line { background: linear-gradient(180deg, #6366f1, #22d3ee, transparent); width: 1px; }
+
+/* ── HORIZONTAL SCROLL ── */
+.h-scroll-track { display: flex; gap: 24px; width: max-content; }
+
+/* ── FOOTER HUGE TEXT ── */
+.footer-name {
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 14vw, 13rem);
+  letter-spacing: 0.02em;
+  line-height: 1;
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(34,211,238,0.15));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ── TIME GREETING ── */
+.time-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(34,211,238,0.7);
+  text-transform: uppercase;
+}
+
+/* ── AURORA BORDER ── */
+@keyframes aurora { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.aurora-border { position:relative; }
+.aurora-border::before {
+  content:''; position:absolute; inset:-1px; border-radius:inherit;
+  background: linear-gradient(135deg,#6366f1,#22d3ee,#a855f7,#ec4899,#6366f1);
+  background-size:300% 300%;
+  animation: aurora 5s ease infinite;
+  z-index:-1; opacity:0; transition:opacity 0.4s;
+}
+.aurora-border:hover::before { opacity:1; }
+
+/* ── NAV ── */
+.nav-link { position:relative; }
+.nav-link::after { content:''; position:absolute; bottom:-2px; left:0; width:0; height:1px; background:linear-gradient(90deg,#6366f1,#22d3ee); transition:width 0.3s ease; }
+.nav-link:hover::after { width:100%; }
+
+/* ── TERMINAL ── */
+.terminal-window {
+  background: #06060f;
+  border: 1px solid rgba(99,102,241,0.35);
+  border-radius: 16px;
+  font-family: var(--font-mono);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(99,102,241,0.1);
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.term-cursor { animation: blink 1s infinite; }
+
+/* ── TYPING DOTS ── */
+@keyframes bounce-dot { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+.typing-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#6366f1; margin:0 2px; animation:bounce-dot 1.2s infinite; }
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+
+/* ── PROGRESS BAR ── */
+.progress-bar { position:fixed; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#6366f1,#22d3ee,#a855f7); transform-origin:0%; z-index:9999; }
