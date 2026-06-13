@@ -50,9 +50,9 @@ const STATS = [
 ];
 
 const EXPERIENCE = [
-  { year: '2022', title: 'Started M.S. Computer Science', place: 'University of Central Missouri', desc: 'Dived deep into algorithms, distributed systems, and AI fundamentals.' },
-  { year: '2023', title: 'First Full-Stack Projects', place: 'Self-directed', desc: 'Built and deployed first production web applications. Learned the hard way about architecture.' },
-  { year: '2024', title: 'Deep AI/LLM Engineering', place: 'Research & Projects', desc: 'Attrition Engine with SHAP explainability. Went all-in on LLMs, RAG, and agent systems.' },
+  { year: '2024', title: 'Started M.S. Computer Science', place: 'University of Central Missouri', desc: 'Dived deep into algorithms, distributed systems, and AI fundamentals.' },
+  { year: '2024', title: 'First Full-Stack Projects', place: 'Self-directed', desc: 'Built and deployed first production web applications. Learned the hard way about architecture.' },
+  { year: '2025', title: 'Deep AI/LLM Engineering', place: 'Research & Projects', desc: 'Attrition Engine with SHAP explainability. Went all-in on LLMs, RAG, and agent systems.' },
   { year: '2025', title: 'Shipped Production SaaS', place: 'PropMind · Copilot · Workflow Platform', desc: 'Three production-grade AI platforms from zero to deployed — real users, real data, real stakes.' },
   { year: '2026', title: 'M.S. Complete · AWS & Anthropic Certified', place: 'UCM · Anthropic · AWS Academy', desc: 'Graduated. Earned certifications in Claude API, Claude Code, AWS Architecting & Security.' },
 ];
