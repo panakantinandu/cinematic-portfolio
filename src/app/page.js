@@ -1,70 +1,18 @@
 'use client';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence, useScroll, useSpring, useTransform, useInView } from 'framer-motion';
+import { User, Rocket, TrendingUp, Mail, Code2, Briefcase, FileText, Send, Volume2, VolumeX, TerminalSquare, X, Bot, Server, Cloud, Puzzle } from 'lucide-react';
+import SmoothScroll from '@/lib/SmoothScroll';
+import Cursor from '@/components/Cursor';
+import Hero from '@/components/Hero';
+import Skills from '@/components/Skills';
+import Work from '@/components/Work';
+import Timeline from '@/components/Timeline';
+import { ME, SKILL_CATEGORIES, EXPERIENCE, CERTS } from '@/data/content';
 
 // ─── DATA ────────────────────────────────────────────────────
-const ME = {
-  name: 'Nandu Panakanti',
-  title: 'Full-Stack AI Engineer',
-  tagline: 'Shipping production-ready AI systems — LLM agents, RAG pipelines, SaaS platforms.',
-  email: 'panakantinandu@gmail.com',
-  phone: '+1 (913) 206-2988',
-  linkedin: 'https://www.linkedin.com/in/nandu-panakanti-41839731a/',
-  github: 'https://github.com/panakantinandu',
-  resume: '/assets/Resume(Nan).pdf',
-  location: 'Kansas City, MO',
-  available: true,
-};
-
-const PROJECTS = [
-  { id: 1, num: '01', name: 'PropMind', category: 'AI SaaS', year: '2025', accent: '#6366f1',
-    desc: 'End-to-end property management SaaS with OpenAI risk scoring, Stripe billing, BullMQ jobs, and Socket.io real-time notifications.',
-    stack: ['Node.js','Express','MongoDB','OpenAI','Stripe','BullMQ','Redis','Socket.io','React'],
-    live: 'https://propmind-6mkn.onrender.com/', github: 'https://github.com/panakantinandu/PropMind' },
-  { id: 2, num: '02', name: 'AI SaaS Copilot', category: 'Dev Tools', year: '2025', accent: '#22d3ee',
-    desc: 'GitHub repo analytics platform with LLM-powered recommendations, dormant repo detection, CI/CD waste analysis, and conversational AI copilot.',
-    stack: ['FastAPI','PostgreSQL','React','TypeScript','GitHub API','OAuth 2.0','LLM'],
-    live: 'https://ai-saas-copilot.vercel.app/', github: 'https://github.com/panakantinandu/ai-saas-copilot' },
-  { id: 3, num: '03', name: 'AI Workflow Platform', category: 'Automation', year: '2025', accent: '#a855f7',
-    desc: 'Drag-and-drop LLM workflow orchestration with structured outputs, retry logic, monitoring dashboard, and AWS-backed deployment pipeline.',
-    stack: ['FastAPI','React','PostgreSQL','AWS EC2','S3','Docker','GitHub Actions'],
-    live: 'https://ai-workflow-platform-sigma.vercel.app/', github: 'https://github.com/panakantinandu/ai-workflow-platform' },
-  { id: 4, num: '04', name: 'Attrition Engine', category: 'ML / XAI', year: '2024', accent: '#f472b6',
-    desc: 'Random Forest classifier with SHAP-based explainability, batch CSV prediction, and interactive Streamlit dashboard for HR analytics.',
-    stack: ['Python','Scikit-Learn','SHAP','Streamlit','Pandas','NumPy','Render'],
-    live: 'https://ml-project-nan.onrender.com/', github: 'https://github.com/panakantinandu/ML_Project-Nan-' },
-];
-
-const SKILLS_MARQUEE = [
-  'FastAPI','Node.js','React','TypeScript','Python','Java',
-  'OpenAI API','Claude API','LangChain','RAG','LLM Agents',
-  'PostgreSQL','MongoDB','Redis','AWS','Docker','GitHub Actions',
-  'Stripe','BullMQ','Socket.io','SHAP','Scikit-Learn','Framer Motion',
-];
-
-const STATS = [
-  { v: '8+', l: 'Projects Shipped' },
-  { v: '200+', l: 'LeetCode Solved' },
-  { v: '9', l: 'Certifications' },
-  { v: '4+', l: 'Years Coding' },
-];
-
-const EXPERIENCE = [
-  { year: '2024', title: 'Started M.S. Computer Science', place: 'University of Central Missouri', desc: 'Dived deep into algorithms, distributed systems, and AI fundamentals.' },
-  { year: '2024', title: 'First Full-Stack Projects', place: 'Self-directed', desc: 'Built and deployed first production web applications. Learned the hard way about architecture.' },
-  { year: '2025', title: 'Deep AI/LLM Engineering', place: 'Research & Projects', desc: 'Attrition Engine with SHAP explainability. Went all-in on LLMs, RAG, and agent systems.' },
-  { year: '2025', title: 'Shipped Production SaaS', place: 'PropMind · Copilot · Workflow Platform', desc: 'Three production-grade AI platforms from zero to deployed — real users, real data, real stakes.' },
-  { year: '2026', title: 'M.S. Complete · AWS & Anthropic Certified', place: 'UCM · Anthropic · AWS Academy', desc: 'Graduated. Earned certifications in Claude API, Claude Code, AWS Architecting & Security.' },
-];
-
-const CERTS = [
-  { icon: '🤖', name: 'Building with Claude API', issuer: 'Anthropic', date: 'Apr 2026', link: 'https://verify.skilljar.com/c/k997obwezamm' },
-  { icon: '⚡', name: 'Claude Code in Action', issuer: 'Anthropic', date: 'Apr 2026', link: 'https://verify.skilljar.com/c/kpere2qc4net' },
-  { icon: '☁️', name: 'AWS Cloud Architecting', issuer: 'AWS Academy', date: 'Apr 2026', link: 'https://www.credly.com/badges/60e3c565-1c17-4a49-a70e-630da5cacac1' },
-  { icon: '🔒', name: 'AWS Cloud Security', issuer: 'AWS Academy', date: 'Apr 2026', link: 'https://www.credly.com/badges/41edff27-62fc-481c-9fea-998259e90231' },
-  { icon: '🏪', name: 'Advanced SWE Simulation', issuer: 'Walmart', date: 'May 2025', link: 'https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/prBZoAihniNijyD6d/oX6f9BbCL9kJDJzfg_prBZoAihniNijyD6d_hFspdJeJnuae3BoDB_1747109821353_completion_certificate.pdf' },
-  { icon: '✈️', name: 'SWE Simulation', issuer: 'Skyscanner', date: 'Apr 2025', link: 'https://forage-uploads-prod.s3.amazonaws.com/completion-certificates/skoQmxqhtgWmKv2pm/p3xGFkpdot5H8NBih_skoQmxqhtgWmKv2pm_hFspdJeJnuae3BoDB_1745513981330_completion_certificate.pdf' },
-];
+// All content now lives in src/data/content.js (resume-sourced single source of truth).
+const SKILLS_MARQUEE = SKILL_CATEGORIES.flatMap(c => c.items);
 
 // ─── TERMINAL DATA ─────────────────────────────────────────
 const TERM_CMDS = {
@@ -75,104 +23,88 @@ const TERM_CMDS = {
     { t: '  hire nandu · sudo hire nandu · clear · exit', c: '#94a3b8' },
   ],
   whoami: [
-    { t: '┌─ Nandu Panakanti ──────────────────┐', c: '#6366f1' },
-    { t: '│  Role    : Full-Stack AI Engineer   │', c: '#e2e8f0' },
-    { t: '│  Status  : Seeking roles 🟢          │', c: '#e2e8f0' },
-    { t: '│  Degree  : M.S. CS, UCM (May 2026)  │', c: '#e2e8f0' },
-    { t: '│  Focus   : LLMs · RAG · SaaS · APIs │', c: '#e2e8f0' },
-    { t: '└────────────────────────────────────┘', c: '#6366f1' },
+    { t: '┌─ Nandu Panakanti ──────────────────────────────┐', c: '#6366f1' },
+    { t: '│  Role    : Software Engineer                    │', c: '#e2e8f0' },
+    { t: '│  Focus   : Backend · Distributed Systems · AI   │', c: '#e2e8f0' },
+    { t: '│  Status  : Seeking full-time roles              │', c: '#4ade80' },
+    { t: '│  Degree  : M.S. CS, UCM (May 2026)              │', c: '#e2e8f0' },
+    { t: '└──────────────────────────────────────────────────┘', c: '#6366f1' },
   ],
   skills: [
-    { t: '⚡ AI   → OpenAI · Claude · LangChain · RAG · Agents', c: '#22d3ee' },
-    { t: '⚡ BE   → FastAPI · Node.js · Express · BullMQ', c: '#22d3ee' },
-    { t: '⚡ FE   → React · TypeScript · Framer Motion', c: '#22d3ee' },
-    { t: '⚡ DB   → PostgreSQL · MongoDB · Redis', c: '#22d3ee' },
-    { t: '⚡ OPS  → AWS · Docker · GitHub Actions · Vercel', c: '#22d3ee' },
+    { t: 'AI/LLM  -> LangGraph, LangChain, Claude API, OpenAI API, RAG', c: '#22d3ee' },
+    { t: 'BACKEND -> Spring Boot, FastAPI, Node.js, Express, REST/GraphQL', c: '#22d3ee' },
+    { t: 'FRONTEND-> React, Next.js, TypeScript, Tailwind CSS', c: '#22d3ee' },
+    { t: 'DATA    -> PostgreSQL, MySQL, MongoDB, Redis, Supabase', c: '#22d3ee' },
+    { t: 'CLOUD   -> AWS (EC2/S3/Lambda), Terraform, Docker, GitHub Actions', c: '#22d3ee' },
   ],
   projects: [
-    { t: '🚀 PropMind         → propmind-6mkn.onrender.com', c: '#6366f1' },
-    { t: '🚀 AI SaaS Copilot  → ai-saas-copilot.vercel.app', c: '#22d3ee' },
-    { t: '🚀 Workflow Platform → ai-workflow-platform-sigma.vercel.app', c: '#a855f7' },
-    { t: '🚀 Attrition Engine → ml-project-nan.onrender.com', c: '#f472b6' },
+    { t: 'FactoryFlow AI Agent   -> factoryflow-ai.vercel.app', c: '#6366f1' },
+    { t: 'PropMind               -> propmind-6mkn.onrender.com', c: '#22d3ee' },
+    { t: 'Raki                   -> frontend-production-d7f3.up.railway.app', c: '#a855f7' },
+    { t: 'AI SaaS Ops Copilot    -> ai-saas-copilot.vercel.app', c: '#f472b6' },
   ],
   experience: [
-    { t: '2022 → Started M.S. CS at UCM', c: '#94a3b8' },
-    { t: '2023 → First production full-stack apps', c: '#94a3b8' },
-    { t: '2024 → Deep LLM engineering + ML with SHAP', c: '#94a3b8' },
-    { t: '2025 → 3 production AI SaaS platforms shipped', c: '#94a3b8' },
-    { t: '2026 → M.S. complete · 9 certs · job hunting 🟢', c: '#4ade80' },
+    { t: 'Aug 2023 -> Research Analyst, Central Institute of Tool Design', c: '#94a3b8' },
+    { t: 'Sep 2025 -> Software Engineer Intern, Jio Robotics', c: '#94a3b8' },
+    { t: '         -> Cut production latency 25% via query/API profiling', c: '#94a3b8' },
+    { t: 'May 2026 -> M.S. Computer Science, University of Central Missouri', c: '#4ade80' },
   ],
   contact: [
-    { t: '📧  panakantinandu@gmail.com', c: '#22d3ee' },
-    { t: '📞  +1 (913) 206-2988', c: '#94a3b8' },
-    { t: '💼  linkedin.com/in/nandu-panakanti-41839731a', c: '#94a3b8' },
-    { t: '🐙  github.com/panakantinandu', c: '#94a3b8' },
-    { t: '⏱️  Response: usually < 24 hours', c: '#4ade80' },
+    { t: 'EMAIL   panakantinandu@gmail.com', c: '#22d3ee' },
+    { t: 'PHONE   +1 (913) 206-2988', c: '#94a3b8' },
+    { t: 'LINKED  linkedin.com/in/nandu-panakanti-41839731a', c: '#94a3b8' },
+    { t: 'GITHUB  github.com/panakantinandu', c: '#94a3b8' },
+    { t: 'RESPONSE usually < 24 hours', c: '#4ade80' },
   ],
   leetcode: [
-    { t: '🔢 Solved    : 200+ problems', c: '#f59e0b' },
-    { t: '   Strengths : DP · Graphs · Sliding Window · Two Pointers', c: '#94a3b8' },
-    { t: '   Approach  : Pattern recognition > memorization', c: '#22d3ee' },
+    { t: 'Solved     : 200+ problems', c: '#f59e0b' },
+    { t: 'Strengths  : graphs, DP, recursion, binary search, sliding window', c: '#94a3b8' },
+    { t: 'Approach   : pattern recognition over memorization', c: '#22d3ee' },
   ],
   certs: [
-    { t: '✓ Building with Claude API  — Anthropic  Apr 2026', c: '#4ade80' },
-    { t: '✓ Claude Code in Action     — Anthropic  Apr 2026', c: '#4ade80' },
-    { t: '✓ AWS Cloud Architecting    — AWS        Apr 2026', c: '#4ade80' },
-    { t: '✓ AWS Cloud Security        — AWS        Apr 2026', c: '#4ade80' },
-    { t: '✓ Advanced SWE Simulation   — Walmart    May 2025', c: '#4ade80' },
-    { t: '✓ SWE Simulation            — Skyscanner Apr 2025', c: '#4ade80' },
+    { t: '[x] Building with the Claude API  -- Anthropic    Apr 2026', c: '#4ade80' },
+    { t: '[x] Claude Code in Action         -- Anthropic    Apr 2026', c: '#4ade80' },
+    { t: '[x] AWS Cloud Architecting        -- AWS Academy  Apr 2026', c: '#4ade80' },
+    { t: '[x] AWS Cloud Security Foundations-- AWS Academy  Apr 2026', c: '#4ade80' },
   ],
   'hire nandu': [
-    { t: '👀 Smart move. Here\'s what you get:', c: '#f472b6' },
-    { t: '   ✓ Production AI systems, not just demos', c: '#4ade80' },
-    { t: '   ✓ Full-stack ownership end to end', c: '#4ade80' },
-    { t: '   ✓ AWS + Anthropic certified', c: '#4ade80' },
-    { t: '   → Run: contact  to reach out 📬', c: '#22d3ee' },
+    { t: 'Smart move. Here\'s what you get:', c: '#f472b6' },
+    { t: '   [x] Six production systems shipped end to end in a year', c: '#4ade80' },
+    { t: '   [x] Backend, distributed systems & LLM agent engineering', c: '#4ade80' },
+    { t: '   [x] AWS + Anthropic certified', c: '#4ade80' },
+    { t: '   -> Run: contact  to reach out', c: '#22d3ee' },
   ],
   'sudo hire nandu': [
-    { t: '[sudo] password for recruiter: ••••••••', c: '#475569' },
-    { t: '✅ Permission granted.', c: '#4ade80' },
-    { t: '🚀 Downloading Nandu Panakanti...', c: '#6366f1' },
-    { t: '   [████████████████████] 100%', c: '#22d3ee' },
-    { t: '   ✓ Full-Stack AI Engineer installed', c: '#4ade80' },
-    { t: '   ✓ Good vibes included 😄', c: '#4ade80' },
-    { t: '   → panakantinandu@gmail.com', c: '#f472b6' },
+    { t: '[sudo] password for recruiter: ********', c: '#475569' },
+    { t: 'Permission granted.', c: '#4ade80' },
+    { t: 'Downloading Nandu Panakanti...', c: '#6366f1' },
+    { t: '   [####################] 100%', c: '#22d3ee' },
+    { t: '   [x] Software Engineer installed', c: '#4ade80' },
+    { t: '   [x] Good vibes included', c: '#4ade80' },
+    { t: '   -> panakantinandu@gmail.com', c: '#f472b6' },
   ],
 };
 
 const BOOT = [
   { t: 'nandu-os v2.0.26 booting...', c: '#475569' },
-  { t: 'Loading portfolio kernel... ✓', c: '#475569' },
+  { t: 'Loading portfolio kernel... done', c: '#475569' },
   { t: '', c: '' },
-  { t: 'Welcome to Nandu\'s Terminal 👾', c: '#6366f1' },
+  { t: 'Welcome to Nandu\'s Terminal', c: '#6366f1' },
   { t: 'Type "help" to see commands.', c: '#94a3b8' },
   { t: '', c: '' },
 ];
 
 // ─── UTILS ───────────────────────────────────────────────────
-function useGreeting() {
-  const [g, setG] = useState('');
-  useEffect(() => {
-    const h = new Date().getHours();
-    if (h < 12) setG('Good morning');
-    else if (h < 17) setG('Good afternoon');
-    else if (h < 21) setG('Good evening');
-    else setG('Good night');
-  }, []);
-  return g;
-}
-
-
 // ─── COMMAND PALETTE (Cmd/Ctrl+K) ─────────────────────────────
 const PALETTE_ACTIONS = [
-  { label: 'Go to About', icon: '👤', href: '#about' },
-  { label: 'Go to Work', icon: '🚀', href: '#work' },
-  { label: 'Go to Experience', icon: '📈', href: '#experience' },
-  { label: 'Go to Contact', icon: '✉️', href: '#contact' },
-  { label: 'View GitHub', icon: '🐙', href: ME.github, external: true },
-  { label: 'View LinkedIn', icon: '💼', href: ME.linkedin, external: true },
-  { label: 'Download Resume', icon: '📄', href: ME.resume, external: true },
-  { label: 'Email Nandu', icon: '📧', href: `mailto:${ME.email}`, external: true },
+  { label: 'Go to About', icon: User, href: '#about' },
+  { label: 'Go to Work', icon: Rocket, href: '#work' },
+  { label: 'Go to Experience', icon: TrendingUp, href: '#experience' },
+  { label: 'Go to Contact', icon: Mail, href: '#contact' },
+  { label: 'View GitHub', icon: Code2, href: ME.github, external: true },
+  { label: 'View LinkedIn', icon: Briefcase, href: ME.linkedin, external: true },
+  { label: 'Download Resume', icon: FileText, href: ME.resume, external: true },
+  { label: 'Email Nandu', icon: Send, href: `mailto:${ME.email}`, external: true },
 ];
 
 function CommandPalette() {
@@ -231,9 +163,9 @@ function CommandPalette() {
               {filtered.map((a, i) => (
                 <motion.button key={i} onClick={() => go(a)}
                   whileHover={{ background: 'rgba(99,102,241,0.08)' }}
-                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', border: 'none', background: 'transparent', color: '#e2e8f0', fontFamily: 'var(--font-space)', fontSize: 14, textAlign: 'left', cursor: 'none' }}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 18px', border: 'none', background: 'transparent', color: '#e2e8f0', fontFamily: 'var(--font-space)', fontSize: 14, textAlign: 'left' }}
                 >
-                  <span style={{ fontSize: 16 }}>{a.icon}</span>
+                  <a.icon size={16} strokeWidth={2} color="#94a3b8" />
                   <span>{a.label}</span>
                 </motion.button>
               ))}
@@ -245,44 +177,6 @@ function CommandPalette() {
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-// ─── CURSOR ──────────────────────────────────────────────────
-function Cursor() {
-  const dot = useRef(null);
-  const ring = useRef(null);
-  const pos = useRef({ x: 0, y: 0 });
-  const rPos = useRef({ x: 0, y: 0 });
-  const raf = useRef(null);
-  const [hov, setHov] = useState(false);
-
-  useEffect(() => {
-    const onMove = e => { pos.current = { x: e.clientX, y: e.clientY }; };
-    const onOver = e => { if (e.target.closest('a,button,[data-hover]')) setHov(true); };
-    const onOut  = e => { if (e.target.closest('a,button,[data-hover]')) setHov(false); };
-    window.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseover', onOver);
-    document.addEventListener('mouseout', onOut);
-    const loop = () => {
-      if (dot.current) { dot.current.style.left = pos.current.x + 'px'; dot.current.style.top = pos.current.y + 'px'; }
-      if (ring.current) {
-        rPos.current.x += (pos.current.x - rPos.current.x) * 0.12;
-        rPos.current.y += (pos.current.y - rPos.current.y) * 0.12;
-        ring.current.style.left = rPos.current.x + 'px';
-        ring.current.style.top  = rPos.current.y + 'px';
-      }
-      raf.current = requestAnimationFrame(loop);
-    };
-    loop();
-    return () => { window.removeEventListener('mousemove', onMove); document.removeEventListener('mouseover', onOver); document.removeEventListener('mouseout', onOut); cancelAnimationFrame(raf.current); };
-  }, []);
-
-  return (
-    <>
-      <div ref={dot} className="cursor-dot" />
-      <div ref={ring} className={`cursor-ring ${hov ? 'hovered' : ''}`} />
-    </>
   );
 }
 
@@ -388,215 +282,6 @@ function Nav() {
   );
 }
 
-// ─── PARTICLE FIELD (hero background) ─────────────────────────
-function ParticleField() {
-  const canvasRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let w, h, particles, raf;
-    const mouse = { x: -9999, y: -9999 };
-    const COLORS = ['99,102,241', '34,211,238', '168,85,247', '244,114,182'];
-
-    const resize = () => {
-      w = canvas.width = canvas.offsetWidth * window.devicePixelRatio;
-      h = canvas.height = canvas.offsetHeight * window.devicePixelRatio;
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-      const count = Math.min(90, Math.floor((canvas.offsetWidth * canvas.offsetHeight) / 18000));
-      particles = Array.from({ length: count }, () => ({
-        x: Math.random() * canvas.offsetWidth,
-        y: Math.random() * canvas.offsetHeight,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        r: Math.random() * 1.8 + 0.6,
-        c: COLORS[Math.floor(Math.random() * COLORS.length)],
-      }));
-    };
-
-    const onMove = e => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    };
-
-    const draw = () => {
-      const cw = canvas.offsetWidth, ch = canvas.offsetHeight;
-      ctx.clearRect(0, 0, cw, ch);
-
-      for (const p of particles) {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0 || p.x > cw) p.vx *= -1;
-        if (p.y < 0 || p.y > ch) p.vy *= -1;
-
-        // subtle attraction toward mouse
-        const dx = mouse.x - p.x, dy = mouse.y - p.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < 140) {
-          p.x -= (dx / dist) * 0.4;
-          p.y -= (dy / dist) * 0.4;
-        }
-      }
-
-      // connections
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const a = particles[i], b = particles[j];
-          const dx = a.x - b.x, dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < 130) {
-            ctx.strokeStyle = `rgba(${a.c},${0.12 * (1 - dist / 130)})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-
-      // nodes
-      for (const p of particles) {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${p.c},0.7)`;
-        ctx.fill();
-      }
-
-      raf = requestAnimationFrame(draw);
-    };
-
-    resize();
-    draw();
-    window.addEventListener('resize', resize);
-    window.addEventListener('mousemove', onMove);
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', resize);
-      window.removeEventListener('mousemove', onMove);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="w-full h-full" style={{ display: 'block' }} />;
-}
-
-// ─── HERO ─────────────────────────────────────────────────────
-function Hero() {
-  const greeting = useGreeting();
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const words = ['Agent Systems.', 'RAG Pipelines.', 'Production APIs.', 'AI SaaS.'];
-  const [wIdx, setWIdx] = useState(0);
-
-  useEffect(() => {
-    const t = setInterval(() => setWIdx(i => (i + 1) % words.length), 2800);
-    return () => clearInterval(t);
-  }, []);
-
-  return (
-    <section ref={ref} id="hero" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Animated particle network background */}
-      <motion.div style={{ y }} className="absolute inset-0 z-0">
-        <ParticleField />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, rgba(5,5,16,0.2) 0%, rgba(5,5,16,0.1) 50%, rgba(5,5,16,0.95) 100%)' }} />
-      </motion.div>
-
-      {/* Glow orbs */}
-      <motion.div animate={{ x: [0, 60, 0], y: [0, 40, 0] }} transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-        className="absolute top-[10%] left-[10%] w-[600px] h-[600px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)', filter: 'blur(40px)' }}
-      />
-      <motion.div animate={{ x: [0, -40, 0], y: [0, 60, 0] }} transition={{ duration: 22, repeat: Infinity, ease: 'linear' }}
-        className="absolute bottom-[10%] right-[10%] w-[500px] h-[500px] rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 70%)', filter: 'blur(40px)' }}
-      />
-
-      {/* Grid lines */}
-      <div className="absolute inset-0 z-0 pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(99,102,241,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.03) 1px,transparent 1px)', backgroundSize: '80px 80px' }} />
-
-      <motion.div style={{ opacity }} className="relative z-10 text-center px-6 max-w-6xl mx-auto">
-        {/* Greeting */}
-        {greeting && (
-          <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            className="time-tag mb-6 inline-block"
-          >{greeting}, I'm</motion.div>
-        )}
-
-        {/* Huge name */}
-        <motion.h1 initial={{ opacity: 0, y: 60, filter: 'blur(20px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ delay: 0.3, duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className="cinematic-title glitch-wrap"
-          data-text="NANDU PANAKANTI"
-          style={{ fontSize: 'clamp(3.5rem, 10vw, 10rem)', color: 'white' }}
-        >NANDU PANAKANTI</motion.h1>
-
-        {/* Subtitle */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-4 mb-2 text-2xl md:text-3xl font-light"
-          style={{ color: '#94a3b8', fontFamily: 'var(--font-space)' }}
-        >Full-Stack AI Engineer</motion.div>
-
-        {/* Animated word */}
-        <div className="overflow-hidden h-12 mb-8">
-          <AnimatePresence mode="wait">
-            <motion.div key={wIdx} initial={{ y: 48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -48, opacity: 0 }}
-              transition={{ duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="grad-text text-xl md:text-2xl font-medium"
-              style={{ fontFamily: 'var(--font-space)' }}
-            >Building {words[wIdx]}</motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Available badge */}
-        <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.8 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-10"
-          style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)' }}
-        >
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-          <span style={{ color: '#4ade80', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.15em' }}>AVAILABLE FOR FULL-TIME ROLES</span>
-        </motion.div>
-
-        {/* CTA buttons */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
-          className="flex flex-wrap items-center justify-center gap-4"
-        >
-          <motion.a href="#work" whileHover={{ scale: 1.05, boxShadow: '0 12px 40px rgba(99,102,241,0.5)' }} whileTap={{ scale: 0.97 }}
-            className="px-8 py-3 rounded-xl text-white font-semibold"
-            style={{ background: 'linear-gradient(135deg,#6366f1,#22d3ee)', fontFamily: 'var(--font-space)' }}
-          >View Work</motion.a>
-          <motion.a href={`mailto:${ME.email}`} whileHover={{ scale: 1.05, borderColor: 'rgba(34,211,238,0.6)' }} whileTap={{ scale: 0.97 }}
-            className="px-8 py-3 rounded-xl font-medium transition-all duration-300"
-            style={{ border: '1px solid rgba(255,255,255,0.15)', color: '#94a3b8', fontFamily: 'var(--font-space)' }}
-          >Let's Talk</motion.a>
-        </motion.div>
-
-        {/* Stats row */}
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
-          className="flex flex-wrap justify-center gap-8 mt-16"
-        >
-          {STATS.map((s, i) => (
-            <div key={i} className="text-center">
-              <div className="cinematic-title text-4xl grad-text">{s.v}</div>
-              <div style={{ color: '#475569', fontSize: 11, letterSpacing: '0.15em', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', marginTop: 4 }}>{s.l}</div>
-            </div>
-          ))}
-        </motion.div>
-      </motion.div>
-
-      {/* Scroll indicator */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.8 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span style={{ color: '#334155', fontSize: 9, letterSpacing: '0.4em', fontFamily: 'var(--font-mono)' }}>SCROLL</span>
-        <div className="scroll-dot w-px h-8" style={{ background: 'linear-gradient(180deg,rgba(99,102,241,0.8),transparent)' }} />
-      </motion.div>
-    </section>
-  );
-}
-
 // ─── ABOUT ─────────────────────────────────────────────────
 function About() {
   const ref = useRef(null);
@@ -642,13 +327,9 @@ function About() {
               </video>
               <motion.button onClick={toggleMute} whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.94 }}
                 title={muted ? 'Unmute video' : 'Mute video'}
-                style={{ position: 'absolute', bottom: 12, right: 12, width: 36, height: 36, borderRadius: '50%', background: 'rgba(5,5,16,0.7)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: muted ? '#94a3b8' : '#22d3ee', cursor: 'none' }}
+                style={{ position: 'absolute', bottom: 12, right: 12, width: 36, height: 36, borderRadius: '50%', background: 'rgba(5,5,16,0.7)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: muted ? '#94a3b8' : '#22d3ee' }}
               >
-                {muted ? (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><line x1="23" y1="9" x2="17" y2="15" /><line x1="17" y1="9" x2="23" y2="15" /></svg>
-                ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" /><path d="M15.54 8.46a5 5 0 0 1 0 7.07" /><path d="M19.07 4.93a10 10 0 0 1 0 14.14" /></svg>
-                )}
+                {muted ? <VolumeX size={14} strokeWidth={2} /> : <Volume2 size={14} strokeWidth={2} />}
               </motion.button>
             </div>
           </div>
@@ -656,7 +337,7 @@ function About() {
           <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
             className="absolute -bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl"
             style={{ background: 'rgba(5,5,16,0.95)', border: '1px solid rgba(34,211,238,0.4)', color: '#22d3ee', fontFamily: 'var(--font-mono)', fontSize: 11, whiteSpace: 'nowrap' }}
-          >{'</ AI Engineer >'}</motion.div>
+          >{'</ Software Engineer >'}</motion.div>
         </motion.div>
 
         {/* Right — text */}
@@ -666,13 +347,13 @@ function About() {
             I BUILD<br /><span className="grad-text">THINGS THAT</span><br />SHIP.
           </h2>
           <p className="mb-6 leading-relaxed" style={{ color: '#94a3b8', fontFamily: 'var(--font-space)', fontSize: '1rem' }}>
-            Full-stack AI Engineer who builds production-ready systems end to end — LLM agent orchestration, RAG pipelines, event-driven payment backends, and real-time dashboards that hold up under real load.
+            {ME.summary}
           </p>
           <p className="mb-8 leading-relaxed" style={{ color: '#94a3b8', fontFamily: 'var(--font-space)', fontSize: '1rem' }}>
-            My philosophy: reliability and correctness over demos. Everything I ship has proper error handling, idempotent operations, strong data integrity, and CI/CD pipelines that actually work.
+            I consistently own the full lifecycle: schema and API design, authentication and authorization, performance profiling, deployment, structured logging, and monitoring.
           </p>
           <div className="flex flex-wrap gap-2">
-            {['M.S. Computer Science','UCM 2026','Anthropic Certified','AWS Certified','200+ LeetCode'].map(t => (
+            {['M.S. Computer Science','UCM · May 2026','Anthropic Certified','AWS Certified','200+ LeetCode'].map(t => (
               <span key={t} className="px-3 py-1 text-xs rounded-full"
                 style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.3)', fontFamily: 'var(--font-mono)' }}
               >{t}</span>
@@ -703,11 +384,11 @@ async def run_agent(task: TaskRequest):
 ];
 
 const ACTIVITY_FEED = [
-  { t: 'Pushed commit', d: 'feat: add streaming responses to AI Workflow Platform', time: '2h ago', icon: '🚀' },
-  { t: 'Deployed', d: 'PropMind v2.3 — Stripe webhook hardening', time: '6h ago', icon: '☁️' },
-  { t: 'Solved', d: 'LeetCode #1456 — Maximum Number of Vowels in a Substring', time: '1d ago', icon: '🧩' },
-  { t: 'Studying', d: 'Multi-agent orchestration patterns with Claude', time: '1d ago', icon: '🤖' },
-  { t: 'Opened PR', d: 'ai-saas-copilot: dormant repo detection v2', time: '2d ago', icon: '🔧' },
+  { t: 'AI Agent Systems', d: 'LangGraph reasoning graphs, tool calling, and retrieval over Claude and OpenAI APIs', icon: Bot },
+  { t: 'Distributed Backends', d: 'Spring Boot + FastAPI services communicating over versioned HTTP contracts', icon: Server },
+  { t: 'Cloud Deployment', d: 'AWS, Docker, and GitHub Actions CI/CD across every shipped project', icon: Cloud },
+  { t: 'Algorithms', d: '200+ LeetCode problems — graphs, DP, recursion, sliding window', icon: Puzzle },
+  { t: 'Open Source', d: 'github.com/panakantinandu', icon: Code2 },
 ];
 
 function TypewriterCode({ code }) {
@@ -741,9 +422,9 @@ function LiveActivity() {
         <motion.div initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }}
           className="mb-16"
         >
-          <div style={{ color: '#6366f1', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.2em', marginBottom: 12 }}>— RIGHT NOW</div>
+          <div style={{ color: '#6366f1', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.2em', marginBottom: 12 }}>— HOW I BUILD</div>
           <h2 className="cinematic-title" style={{ fontSize: 'clamp(2.5rem,7vw,7rem)', color: 'white', lineHeight: 0.9 }}>
-            CURRENTLY<br /><span className="grad-text">SHIPPING.</span>
+            WHAT I'M<br /><span className="grad-text">SHIPPING.</span>
           </h2>
         </motion.div>
 
@@ -779,12 +460,13 @@ function LiveActivity() {
                 className="flex items-start gap-4 p-4 rounded-xl transition-all duration-200"
                 style={{ borderBottom: i < ACTIVITY_FEED.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}
               >
-                <span className="text-2xl">{a.icon}</span>
+                <span className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(99,102,241,0.1)' }}>
+                  <a.icon size={16} strokeWidth={2} color="#a5b4fc" />
+                </span>
                 <div className="flex-1">
                   <div style={{ color: 'white', fontFamily: 'var(--font-space)', fontSize: 14, fontWeight: 600 }}>{a.t}</div>
                   <div style={{ color: '#94a3b8', fontFamily: 'var(--font-space)', fontSize: 13, marginTop: 2 }}>{a.d}</div>
                 </div>
-                <span style={{ color: '#475569', fontFamily: 'var(--font-mono)', fontSize: 11, whiteSpace: 'nowrap' }}>{a.time}</span>
               </motion.div>
             ))}
           </motion.div>
@@ -812,112 +494,6 @@ function SkillsMarquee() {
   );
 }
 
-// ─── WORK (horizontal scroll feel) ───────────────────────────
-function Work() {
-  const [active, setActive] = useState(0);
-  const proj = PROJECTS[active];
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
-
-  return (
-    <section id="work" ref={ref} className="relative py-32 px-6 overflow-hidden" style={{ background: 'var(--bg2)' }}>
-      <motion.div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none"
-        style={{ background: 'radial-gradient(circle,rgba(34,211,238,0.06) 0%,transparent 70%)', filter: 'blur(60px)' }}
-      />
-      <div className="max-w-7xl mx-auto">
-        {/* Section header */}
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8 }}
-          className="mb-16"
-        >
-          <div style={{ color: '#6366f1', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.2em', marginBottom: 12 }}>— SELECTED WORK</div>
-          <h2 className="cinematic-title" style={{ fontSize: 'clamp(3rem,8vw,8rem)', color: 'white', lineHeight: 0.9 }}>
-            PROJECTS<br /><span className="grad-text">BUILT TO</span><br />PRODUCTION.
-          </h2>
-        </motion.div>
-
-        {/* Project selector tabs */}
-        <div className="flex flex-wrap gap-3 mb-12">
-          {PROJECTS.map((p, i) => (
-            <motion.button key={p.id} onClick={() => setActive(i)}
-              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-3 px-5 py-3 rounded-xl transition-all duration-300"
-              style={{
-                background: active === i ? `${p.accent}18` : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${active === i ? p.accent : 'rgba(255,255,255,0.08)'}`,
-                color: active === i ? 'white' : '#475569',
-                fontFamily: 'var(--font-mono)',
-              }}
-            >
-              <span style={{ color: p.accent, fontSize: 12 }}>{p.num}</span>
-              <span style={{ fontSize: 13 }}>{p.name}</span>
-            </motion.button>
-          ))}
-        </div>
-
-        {/* Project detail */}
-        <AnimatePresence mode="wait">
-          <motion.div key={proj.id}
-            initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, y: -20, filter: 'blur(8px)' }}
-            transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="glass-card overflow-hidden"
-          >
-            <div className="h-1" style={{ background: `linear-gradient(90deg,${proj.accent},${proj.accent}60,transparent)` }} />
-            <div className="p-10 grid lg:grid-cols-2 gap-12 items-start">
-              {/* Left */}
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <span className="cinematic-title text-6xl" style={{ color: proj.accent, opacity: 0.3 }}>{proj.num}</span>
-                  <div>
-                    <h3 className="cinematic-title text-4xl" style={{ color: 'white' }}>{proj.name.toUpperCase()}</h3>
-                    <span style={{ color: proj.accent, fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.15em' }}>{proj.category.toUpperCase()} · {proj.year}</span>
-                  </div>
-                </div>
-                <p className="mt-6 mb-8 leading-relaxed" style={{ color: '#94a3b8', fontFamily: 'var(--font-space)' }}>{proj.desc}</p>
-                <div className="flex flex-wrap gap-2 mb-8">
-                  {proj.stack.map(t => (
-                    <span key={t} className="px-3 py-1 text-xs rounded-full"
-                      style={{ background: `${proj.accent}15`, color: proj.accent, border: `1px solid ${proj.accent}40`, fontFamily: 'var(--font-mono)' }}
-                    >{t}</span>
-                  ))}
-                </div>
-                <div className="flex gap-3">
-                  <motion.a href={proj.live} target="_blank" rel="noreferrer"
-                    whileHover={{ scale: 1.05, boxShadow: `0 8px 24px ${proj.accent}40` }} whileTap={{ scale: 0.97 }}
-                    className="px-6 py-2.5 rounded-xl text-white text-sm font-semibold"
-                    style={{ background: `linear-gradient(135deg,${proj.accent},${proj.accent}99)`, fontFamily: 'var(--font-space)' }}
-                  >Live Demo ↗</motion.a>
-                  {proj.github && (
-                    <motion.a href={proj.github} target="_blank" rel="noreferrer"
-                      whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
-                      className="px-6 py-2.5 rounded-xl text-sm font-medium transition-all duration-300"
-                      style={{ border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', fontFamily: 'var(--font-space)' }}
-                    >GitHub ↗</motion.a>
-                  )}
-                </div>
-              </div>
-              {/* Right — live iframe */}
-              <div style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${proj.accent}30` }}>
-                <div className="flex items-center gap-2 px-4 py-2.5" style={{ background: 'rgba(0,0,0,0.4)', borderBottom: `1px solid ${proj.accent}20` }}>
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff5f57', display: 'inline-block' }} />
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#febc2e', display: 'inline-block' }} />
-                  <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#28c840', display: 'inline-block' }} />
-                  <span style={{ marginLeft: 8, fontSize: 10, color: '#334155', fontFamily: 'var(--font-mono)' }}>{proj.live.replace('https://', '')}</span>
-                </div>
-                <iframe src={proj.live} title={proj.name} loading="lazy"
-                  style={{ width: '100%', height: 340, border: 'none', background: '#000' }}
-                  sandbox="allow-scripts allow-same-origin allow-forms"
-                />
-              </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-    </section>
-  );
-}
-
 // ─── EXPERIENCE ───────────────────────────────────────────────
 function Experience() {
   const ref = useRef(null);
@@ -938,55 +514,31 @@ function Experience() {
           </h2>
         </motion.div>
 
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-8 top-0 bottom-0 timeline-line hidden md:block" />
-
-          <div className="space-y-12">
-            {EXPERIENCE.map((e, i) => (
-              <motion.div key={i}
-                initial={{ opacity: 0, x: -40 }} animate={inView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.6, delay: i * 0.12 }}
-                className="relative md:pl-24 group"
-              >
-                {/* Dot */}
-                <motion.div whileHover={{ scale: 1.4 }}
-                  className="absolute left-6 top-1 w-4 h-4 rounded-full hidden md:block"
-                  style={{ background: 'linear-gradient(135deg,#6366f1,#22d3ee)', boxShadow: '0 0 16px rgba(99,102,241,0.5)' }}
-                />
-                <div className="glass-card p-8 transition-all duration-400 group-hover:border-indigo-500/40">
-                  <div className="flex flex-wrap items-start justify-between gap-4 mb-3">
-                    <div>
-                      <span style={{ color: '#6366f1', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.15em' }}>{e.year}</span>
-                      <h3 className="text-xl font-bold mt-1" style={{ color: 'white', fontFamily: 'var(--font-space)' }}>{e.title}</h3>
-                      <p style={{ color: '#22d3ee', fontFamily: 'var(--font-mono)', fontSize: 12, marginTop: 2 }}>{e.place}</p>
-                    </div>
-                  </div>
-                  <p style={{ color: '#94a3b8', fontFamily: 'var(--font-space)', lineHeight: 1.7 }}>{e.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+        <Timeline />
 
         {/* Certs grid */}
-        <motion.div initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.6 }}
+        <motion.div initial={{ opacity: 0, y: 40 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.8, delay: 0.3 }}
           className="mt-24"
         >
           <div style={{ color: '#6366f1', fontFamily: 'var(--font-mono)', fontSize: 11, letterSpacing: '0.2em', marginBottom: 16 }}>— CERTIFICATIONS</div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {CERTS.map((c, i) => (
-              <motion.a key={i} href={c.link} target="_blank" rel="noreferrer"
-                whileHover={{ y: -6, borderColor: 'rgba(99,102,241,0.5)' }}
-                className="glass-card p-5 flex items-center gap-4 transition-all duration-300"
-              >
-                <span className="text-3xl">{c.icon}</span>
-                <div>
-                  <div className="text-sm font-semibold" style={{ color: 'white', fontFamily: 'var(--font-space)' }}>{c.name}</div>
-                  <div style={{ color: '#475569', fontFamily: 'var(--font-mono)', fontSize: 11, marginTop: 2 }}>{c.issuer} · {c.date}</div>
-                </div>
-              </motion.a>
-            ))}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {CERTS.map((c, i) => {
+              const Icon = c.issuer === 'Anthropic' ? Bot : Cloud;
+              return (
+                <motion.a key={i} href={c.link} target="_blank" rel="noreferrer" data-hover
+                  whileHover={{ y: -6, borderColor: 'rgba(99,102,241,0.5)' }}
+                  className="glass-card p-5 flex items-center gap-4 transition-all duration-300"
+                >
+                  <span className="w-11 h-11 rounded-lg flex items-center justify-center shrink-0" style={{ background: 'rgba(99,102,241,0.12)' }}>
+                    <Icon size={20} strokeWidth={2} color="#a5b4fc" />
+                  </span>
+                  <div>
+                    <div className="text-sm font-semibold" style={{ color: 'white', fontFamily: 'var(--font-space)' }}>{c.name}</div>
+                    <div style={{ color: '#475569', fontFamily: 'var(--font-mono)', fontSize: 11, marginTop: 2 }}>{c.issuer} · {c.date}</div>
+                  </div>
+                </motion.a>
+              );
+            })}
           </div>
         </motion.div>
       </div>
@@ -1063,8 +615,8 @@ function Terminal() {
         </AnimatePresence>
         <motion.button onClick={() => setOpen(o => !o)}
           whileHover={{ scale: 1.1, boxShadow: '0 0 32px rgba(99,102,241,0.6)' }} whileTap={{ scale: 0.9 }}
-          style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#22d3ee)', border: 'none', cursor: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: 'white', fontFamily: 'var(--font-mono)', boxShadow: '0 8px 32px rgba(99,102,241,0.4)' }}
-        >{open ? '✕' : '>_'}</motion.button>
+          style={{ width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg,#6366f1,#22d3ee)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: 'white', fontFamily: 'var(--font-mono)', boxShadow: '0 8px 32px rgba(99,102,241,0.4)' }}
+        >{open ? <X size={22} strokeWidth={2} /> : <TerminalSquare size={22} strokeWidth={2} />}</motion.button>
       </div>
 
       <AnimatePresence>
@@ -1077,7 +629,7 @@ function Terminal() {
           >
             {/* Title bar */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-              <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57', cursor: 'none' }} onClick={() => setOpen(false)} />
+              <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57' }} onClick={() => setOpen(false)} />
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#febc2e' }} />
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: '#28c840' }} />
               <span style={{ marginLeft: 8, fontSize: 11, color: '#475569', fontFamily: 'var(--font-mono)' }}>nandu@portfolio:~$</span>
@@ -1108,7 +660,7 @@ function Terminal() {
             <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: 6, flexWrap: 'wrap', flexShrink: 0, background: 'rgba(0,0,0,0.3)' }}>
               {['help', 'whoami', 'projects', 'hire nandu', 'sudo hire nandu'].map(cmd => (
                 <button key={cmd} onClick={() => { run(cmd); inputRef.current?.focus(); }}
-                  style={{ padding: '3px 10px', borderRadius: 6, border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.08)', color: '#a5b4fc', fontSize: 11, cursor: 'none', fontFamily: 'var(--font-mono)' }}
+                  style={{ padding: '3px 10px', borderRadius: 6, border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.08)', color: '#a5b4fc', fontSize: 11, fontFamily: 'var(--font-mono)' }}
                   onMouseEnter={e => { e.target.style.background = 'rgba(99,102,241,0.2)'; }}
                   onMouseLeave={e => { e.target.style.background = 'rgba(99,102,241,0.08)'; }}
                 >{cmd}</button>
@@ -1138,7 +690,7 @@ function Contact() {
             LET'S<br /><span className="grad-text">BUILD</span><br />SOMETHING.
           </h2>
           <p className="mb-12 max-w-xl mx-auto leading-relaxed" style={{ color: '#94a3b8', fontFamily: 'var(--font-space)' }}>
-            Actively seeking full-time AI / full-stack engineering roles. If you're building something ambitious, let's talk.
+            Actively seeking full-time roles in backend, distributed systems, and AI/LLM engineering{ME.relocate ? ' — open to relocation' : ''}. If you're building something ambitious, let's talk.
           </p>
         </motion.div>
 
@@ -1200,28 +752,31 @@ export default function Page() {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <main className="noise">
-      <AnimatePresence mode="wait">
-        {!loaded && <Loader key="loader" onDone={() => setLoaded(true)} />}
-      </AnimatePresence>
+    <SmoothScroll>
+      <main className="noise">
+        <AnimatePresence mode="wait">
+          {!loaded && <Loader key="loader" onDone={() => setLoaded(true)} />}
+        </AnimatePresence>
 
-      {loaded && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-          <Cursor />
-          <CommandPalette />
-          <Nav />
-          <Hero />
-          <SkillsMarquee />
-          <About />
-          <LiveActivity />
-          <SkillsMarquee />
-          <Work />
-          <Experience />
-          <Contact />
-          <Footer />
-          <Terminal />
-        </motion.div>
-      )}
-    </main>
+        {loaded && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+            <Cursor />
+            <CommandPalette />
+            <Nav />
+            <Hero />
+            <SkillsMarquee />
+            <About />
+            <LiveActivity />
+            <SkillsMarquee />
+            <Skills />
+            <Work />
+            <Experience />
+            <Contact />
+            <Footer />
+            <Terminal />
+          </motion.div>
+        )}
+      </main>
+    </SmoothScroll>
   );
 }

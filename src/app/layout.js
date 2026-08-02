@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Nandu Panakanti | Full-Stack AI Engineer',
-  description: 'Full-Stack AI Engineer shipping production-ready LLM agents, RAG pipelines, and SaaS platforms.',
+  title: 'Nandu Panakanti | Software Engineer — Backend & Distributed Systems, AI/LLM Engineering',
+  description: 'Software engineer building distributed backend systems, LLM agent pipelines, and cloud infrastructure — Spring Boot, FastAPI, LangGraph, AWS.',
 };
 
 export default function RootLayout({ children }) {
